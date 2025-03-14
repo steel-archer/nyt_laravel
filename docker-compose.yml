@@ -1,0 +1,32 @@
+services:
+  fpm:
+    build: './docker'
+    networks:
+      - nyt
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+
+  httpd:
+    image: httpd:latest
+    depends_on:
+      - 'fpm'
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8089:80"
+    networks:
+      - nyt
+
+  node:
+    image: node:latest
+    container_name: node_env
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+    networks:
+      - nyt
+
+networks:
+  nyt:
+    driver: bridge
