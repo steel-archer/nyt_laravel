@@ -1,11 +1,18 @@
+# IDE and editor files
 /.idea/
+/.vscode/
+/.nova/
+/.zed/
 
-/vendor/
-node_modules/
+# Node dependencies
+/node_modules/
 npm-debug.log
 yarn-error.log
 
-# Laravel 4 specific
+# PHP dependencies
+/vendor/
+
+# Laravel specific
 bootstrap/compiled.php
 app/storage/
 
@@ -17,16 +24,26 @@ public/hot
 public_html/storage
 public_html/hot
 
+# Storage and environment files
 storage/*.key
 .env
+.env.backup
+.env.production
+
+# PHPUnit and testing
+.phpunit.result.cache
+/.phpunit.cache
+
+# Miscellaneous
 Homestead.yaml
 Homestead.json
 /.vagrant
-.phpunit.result.cache
+/auth.json
+/phpactor.json
 
+# Build and deployment
 /public/build
 /storage/pail
-.env.backup
-.env.production
-.phpactor.json
-auth.json
+
+# Fleet configuration
+/.fleet
