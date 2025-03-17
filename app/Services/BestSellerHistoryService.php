@@ -21,7 +21,7 @@ class BestSellerHistoryService
         $this->apiKey = config('services.nyt_api_key', '');
     }
 
-    public function get(
+    public function search(
         string $author = '',
         int $isbn = 0,
         string $title = '',

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\BestSellerHistoryService;
-use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 
 class BestSellerHistory extends Controller
 {
@@ -12,7 +12,7 @@ class BestSellerHistory extends Controller
     ) {
     }
 
-    public function get(): View
+    public function search(): JsonResponse
     {
         $history = array_merge(
             [
@@ -20,8 +20,9 @@ class BestSellerHistory extends Controller
                 'numResults' => 0,
                 'errors' => [],
             ],
-            $this->bestSellerHistoryService->get(),
+            $this->bestSellerHistoryService->search(),
         );
-        return view('best-seller-history', $history);
+
+        return response()->json($history);
     }
 }
