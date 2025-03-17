@@ -5,6 +5,7 @@ namespace App\Services;
 use DomainException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+use RuntimeException;
 
 class BestSellerHistoryService
 {
@@ -28,15 +29,8 @@ class BestSellerHistoryService
         int $version,
     ): array {
         if (empty($this->apiHost) || empty($this->apiKey)) {
-            return [];
+            throw new RuntimeException('You must set an API host and key.');
         }
-
-        // @todo number; errors
-        $resultKey = match ($version) {
-            1 => 'body',
-            2, 3 => 'results',
-            default => throw new DomainException("Unknown version $version."),
-        };
 
         try {
             $rawUri = self::URI;
@@ -74,13 +68,26 @@ class BestSellerHistoryService
             return ['errors' => [$response['fault']['faultstring']]];
         }
 
+        // V1
+        if (!empty($response['headers']['errors'])) {
+            return ['errors' => $response['headers']['errors']];
+        }
+
+        // V2 and V3
         if (!empty($response['errors'])) {
             return ['errors' => $response['errors']];
         }
 
+        if ($version === 1) {
+            return [
+                'results' => $response['body'],
+                'numResults' => $response['headers']['num_results'],
+            ];
+        }
+
         return [
-            'results' => $response[$resultKey],
-            'numResults' => $response['num_results'], // @todo For V1 it's headers.num_results
+            'results' => $response['results'],
+            'numResults' => $response['num_results'],
         ];
     }
 }
