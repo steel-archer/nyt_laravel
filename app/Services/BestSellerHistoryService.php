@@ -10,7 +10,6 @@ class BestSellerHistoryService
 {
     protected const URI = '{+endpoint}/svc/books/v{version}/lists/best-sellers/history.json?api-key={apiKey}&author={author}&title={title}&offset={offset}';
     protected const URI_ISBN_PART = '&isbn={isbn}';
-    protected const DEFAULT_VERSION = 3;
 
     protected string $apiHost = '';
     protected string $apiKey = '';
@@ -22,11 +21,11 @@ class BestSellerHistoryService
     }
 
     public function search(
-        string $author = '',
-        int $isbn = 0,
-        string $title = '',
-        int $offset = 0,
-        int $version = self::DEFAULT_VERSION,
+        string $author,
+        int $isbn,
+        string $title,
+        int $offset,
+        int $version,
     ): array {
         if (empty($this->apiHost) || empty($this->apiKey)) {
             return [];

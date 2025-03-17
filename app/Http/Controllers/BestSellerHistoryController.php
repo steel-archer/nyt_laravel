@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\BestSellerHistoryService;
 use Closure;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -11,7 +12,9 @@ use Illuminate\Support\Facades\Validator;
 
 class BestSellerHistoryController extends Controller
 {
-    protected const VALIDATION_ERROR_CODE = 422;
+    protected const DEFAULT_VERSION = 3;
+    protected const ERROR_CODE_VALIDATION = 422;
+    protected const ERROR_CODE_UNKNOWN = 500;
 
     public function __construct(
         protected BestSellerHistoryService $bestSellerHistoryService,
@@ -27,7 +30,19 @@ class BestSellerHistoryController extends Controller
 
         if ($validator->fails()) {
             $errors = $validator->errors(); // Get the errors
-            return response()->json(['errors' => $errors], self::VALIDATION_ERROR_CODE);
+            return response()->json(['errors' => $errors], self::ERROR_CODE_VALIDATION);
+        }
+
+        try {
+            $searchResults = $this->bestSellerHistoryService->search(
+                $request->get('author', ''),
+                $request->get('isbn', 0),
+                $request->get('title', ''),
+                $request->get('offset', 0),
+                $request->get('version', self::DEFAULT_VERSION),
+            );
+        } catch (Exception $ex) {
+            return response()->json(['errors' => [$ex->getMessage()]], self::ERROR_CODE_UNKNOWN);
         }
 
         $history = array_merge(
@@ -36,7 +51,7 @@ class BestSellerHistoryController extends Controller
                 'numResults' => 0,
                 'errors' => [],
             ],
-            $this->bestSellerHistoryService->search(),
+            $searchResults,
         );
 
         return response()->json($history);
