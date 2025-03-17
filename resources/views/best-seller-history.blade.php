@@ -1,2 +1,10 @@
 Best Sellers History
-@dump($data)
+
+Results:
+@dump($results)
+
+Number of results
+@dump($numResults)
+
+Errors:
+@dump($errors)

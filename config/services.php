@@ -35,5 +35,6 @@ return [
         ],
     ],
 
+    'nyt_api_host' => env('NYT_API_HOST'),
     'nyt_api_key' => env('NYT_API_KEY'),
 ];

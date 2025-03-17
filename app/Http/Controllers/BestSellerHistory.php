@@ -14,6 +14,14 @@ class BestSellerHistory extends Controller
 
     public function get(): View
     {
-        return view('best-seller-history', ['data' => $this->bestSellerHistoryService->get()]);
+        $history = array_merge(
+            [
+                'results' => [],
+                'numResults' => 0,
+                'errors' => [],
+            ],
+            $this->bestSellerHistoryService->get(),
+        );
+        return view('best-seller-history', $history);
     }
 }
