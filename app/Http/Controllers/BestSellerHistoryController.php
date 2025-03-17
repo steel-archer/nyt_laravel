@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\BestSellerHistoryService;
 use Illuminate\Http\JsonResponse;
 
-class BestSellerHistory extends Controller
+class BestSellerHistoryController extends Controller
 {
     public function __construct(
         protected BestSellerHistoryService $bestSellerHistoryService,
