@@ -28,11 +28,11 @@ class BestSellerHistoryService
         int $offset = 0,
         int $version = self::DEFAULT_VERSION,
     ): array {
-
         if (empty($this->apiHost) || empty($this->apiKey)) {
             return [];
         }
 
+        // @todo number; errors
         $resultKey = match ($version) {
             1 => 'body',
             2, 3 => 'results',
@@ -57,6 +57,7 @@ class BestSellerHistoryService
             if (!empty($isbn)) {
                 $params['isbn'] = $isbn;
                 $rawUri .= self::URI_ISBN_PART;
+                // @todo check what's wrong with multiple ISBNs.
             }
 
             $rawResponse = Http::withUrlParameters($params)->get($rawUri);
@@ -80,7 +81,7 @@ class BestSellerHistoryService
 
         return [
             'results' => $response[$resultKey],
-            'numResults' => $response['num_results'],
+            'numResults' => $response['num_results'], // @todo For V1 it's headers.num_results
         ];
     }
 }
