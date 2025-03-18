@@ -146,6 +146,7 @@ class BestSellerHistoryTest extends TestCase
     public static function validationErrorsDataProvider(): iterable
     {
         yield [['isbn' => 10], ['isbn' => ['The isbn should be either absent or contain exactly 10 or 13 digits.']]];
+        yield [['isbn' => 'aa'], ['isbn' => ['The isbn field must be an integer.']]];
         yield [['offset' => 10], ['offset' => ['The offset must be a multiple of 20.']]];
         yield [['offset' => 'aa'], ['offset' => ['The offset field must be an integer.']]];
     }

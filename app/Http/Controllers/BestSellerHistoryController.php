@@ -50,6 +50,7 @@ class BestSellerHistoryController extends AbstractNytApiController
              * So I made this parameter just an integer.
              */
             'isbn' => [
+                'bail',
                 'integer',
                 'nullable',
                 function (string $attribute, mixed $value, Closure $fail) {
