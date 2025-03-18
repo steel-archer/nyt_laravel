@@ -12,6 +12,8 @@ class BestSellerHistoryTest extends TestCase
 {
     protected const CORRECT_RESPONSE_FILE = __DIR__ . '/stubs/correct.json';
     protected const CORRECT_RESPONSE_FILE_V1 = __DIR__ . '/stubs/correctV1.json';
+    protected const EMPTY_RESPONSE_FILE = __DIR__ . '/stubs/empty.json';
+    protected const EMPTY_RESPONSE_FILE_V1 = __DIR__ . '/stubs/emptyV1.json';
 
     protected string $apiHost = '';
     protected string $apiKey = '';
@@ -112,6 +114,13 @@ class BestSellerHistoryTest extends TestCase
             // Offset
             $params = $basicParams;
             $params['offset'] = 0;
+            yield [$params, $content];
+
+            $params = $basicParams;
+            $params['offset'] = 20;
+            $content = $version === 1
+                ? file_get_contents(self::EMPTY_RESPONSE_FILE_V1)
+                : file_get_contents(self::EMPTY_RESPONSE_FILE);
             yield [$params, $content];
         }
     }
