@@ -20,7 +20,7 @@ abstract class AbstractNytApiService
         $response = $rawResponse->json();
 
         if (empty($response)) {
-            return ['errors' => 'Empty response.'];
+            return ['errors' => ['Empty response.']];
         }
 
         if (!empty($response['fault'])) {

@@ -170,7 +170,10 @@ class BestSellerHistoryTest extends TestCase
         self::assertJsonStringEqualsJsonString(json_encode($errors, JSON_THROW_ON_ERROR), $response->getContent());
     }
 
-    public function testConnectionException()
+    /**
+     * @throws JsonException
+     */
+    public function testConnectionException(): void
     {
         $params['version'] = 3;
         $endpoint = sprintf($this->apiEndpoint, 3);
@@ -183,6 +186,23 @@ class BestSellerHistoryTest extends TestCase
         $response = $this->get(route('api.best-seller-history.search', $params));
 
         $errors = ['errors' => ['Connection exception.']];
+
+        self::assertJsonStringEqualsJsonString(json_encode($errors, JSON_THROW_ON_ERROR), $response->getContent());
+    }
+
+    public function testEmptyResponse(): void
+    {
+        $params['version'] = 3;
+        $endpoint = sprintf($this->apiEndpoint, 3);
+        Http::fake([
+            $endpoint => function () {
+                return Http::response();
+            }
+        ]);
+
+        $response = $this->get(route('api.best-seller-history.search', $params));
+
+        $errors = ['errors' => ['Empty response.']];
 
         self::assertJsonStringEqualsJsonString(json_encode($errors, JSON_THROW_ON_ERROR), $response->getContent());
     }
