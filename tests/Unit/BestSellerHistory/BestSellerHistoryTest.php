@@ -34,7 +34,8 @@ class BestSellerHistoryTest extends TestCase
     #[DataProvider('correctDataProvider')]
     public function testCorrect(array $params, string $json): void
     {
-        $endpoint = sprintf($this->apiEndpoint, $params['version']);
+        $version = $params['version'] ?? 3;
+        $endpoint = sprintf($this->apiEndpoint, $version);
         Http::fake([
             $endpoint => Http::response($json),
         ]);
@@ -42,7 +43,7 @@ class BestSellerHistoryTest extends TestCase
         $response = $this->get(
             route(
                 'api.best-seller-history.search',
-                ['version' => $params['version']],
+                $params,
             ),
         );
 
@@ -50,7 +51,7 @@ class BestSellerHistoryTest extends TestCase
 
         // We also add version to any correct response from NYT API.
         $jsonArray = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-        $jsonArray['version'] = $params['version'];
+        $jsonArray['version'] = $version;
         $json = json_encode($jsonArray, JSON_THROW_ON_ERROR);
 
         self::assertJsonStringEqualsJsonString($json, $response->getContent());
@@ -58,8 +59,22 @@ class BestSellerHistoryTest extends TestCase
 
     public static function correctDataProvider(): iterable
     {
-        yield [['version' => 1], file_get_contents(self::CORRECT_RESPONSE_FILE_V1)];
-        yield [['version' => 2], file_get_contents(self::CORRECT_RESPONSE_FILE)];
-        yield [['version' => 3], file_get_contents(self::CORRECT_RESPONSE_FILE)];
+        for ($version = 0; $version <=3; $version++) {
+            // No version (so 3).
+            if ($version === 0) {
+                $params = [];
+                yield [$params, file_get_contents(self::CORRECT_RESPONSE_FILE)];
+            } elseif ($version === 1) {
+                $params = [
+                    'version' => 1,
+                ];
+                yield [$params, file_get_contents(self::CORRECT_RESPONSE_FILE_V1)];
+            } else {
+                $params = [
+                    'version' => $version,
+                ];
+                yield [$params, file_get_contents(self::CORRECT_RESPONSE_FILE)];
+            }
+        }
     }
 }
