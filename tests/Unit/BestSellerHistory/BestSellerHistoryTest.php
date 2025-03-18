@@ -32,9 +32,9 @@ class BestSellerHistoryTest extends TestCase
      * @throws JsonException
      */
     #[DataProvider('correctDataProvider')]
-    public function testCorrect(int $version, string $json): void
+    public function testCorrect(array $params, string $json): void
     {
-        $endpoint = sprintf($this->apiEndpoint, $version);
+        $endpoint = sprintf($this->apiEndpoint, $params['version']);
         Http::fake([
             $endpoint => Http::response($json),
         ]);
@@ -42,14 +42,15 @@ class BestSellerHistoryTest extends TestCase
         $response = $this->get(
             route(
                 'api.best-seller-history.search',
-                ['version' => $version],
+                ['version' => $params['version']],
             ),
         );
 
         self::assertEquals(200, $response->status());
 
+        // We also add version to any correct response from NYT API.
         $jsonArray = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-        $jsonArray['version'] = $version;
+        $jsonArray['version'] = $params['version'];
         $json = json_encode($jsonArray, JSON_THROW_ON_ERROR);
 
         self::assertJsonStringEqualsJsonString($json, $response->getContent());
@@ -57,8 +58,8 @@ class BestSellerHistoryTest extends TestCase
 
     public static function correctDataProvider(): iterable
     {
-        yield [1, file_get_contents(self::CORRECT_RESPONSE_FILE_V1)];
-        yield [2, file_get_contents(self::CORRECT_RESPONSE_FILE)];
-        yield [3, file_get_contents(self::CORRECT_RESPONSE_FILE)];
+        yield [['version' => 1], file_get_contents(self::CORRECT_RESPONSE_FILE_V1)];
+        yield [['version' => 2], file_get_contents(self::CORRECT_RESPONSE_FILE)];
+        yield [['version' => 3], file_get_contents(self::CORRECT_RESPONSE_FILE)];
     }
 }
