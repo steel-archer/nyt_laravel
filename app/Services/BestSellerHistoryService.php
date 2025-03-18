@@ -5,19 +5,10 @@ namespace App\Services;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
-class BestSellerHistoryService
+class BestSellerHistoryService extends AbstractNytApiService
 {
     protected const URI = '{+endpoint}/svc/books/v{version}/lists/best-sellers/history.json?api-key={apiKey}&author={author}&title={title}&offset={offset}';
     protected const URI_ISBN_PART = '&isbn={isbn}';
-
-    protected string $apiHost = '';
-    protected string $apiKey = '';
-
-    public function __construct()
-    {
-        $this->apiHost = config('services.nyt_api_host', '');
-        $this->apiKey = config('services.nyt_api_key', '');
-    }
 
     public function search(
         string $author,
@@ -55,28 +46,6 @@ class BestSellerHistoryService
             return ['errors' => "Connection exception."];
         }
 
-        $response = $rawResponse->json();
-
-        if (empty($response)) {
-            return ['errors' => 'Empty response.'];
-        }
-
-        if (!empty($response['fault'])) {
-            return ['errors' => [$response['fault']['faultstring']]];
-        }
-
-        // V1
-        if (!empty($response['headers']['errors'])) {
-            return ['errors' => $response['headers']['errors']];
-        }
-
-        // V2 and V3
-        if (!empty($response['errors'])) {
-            return ['errors' => $response['errors']];
-        }
-
-        $response['version'] = $version;
-
-        return $response;
+        return $this->processResult($rawResponse, $version);
     }
 }
