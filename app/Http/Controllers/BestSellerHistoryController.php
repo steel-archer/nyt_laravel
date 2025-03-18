@@ -61,11 +61,16 @@ class BestSellerHistoryController extends Controller
     {
         return [
             'author' => 'string|nullable',
+            /**
+             * N.B. Theoretically NYT API must support multiple ISBNs, separated by ";" character.
+             * In practice I didn't manage to make it work (even with examples provided by NYT),
+             * API just returns empty array.
+             * So I made this parameter just an integer.
+             */
             'isbn' => [
                 'integer',
                 'nullable',
                 function (string $attribute, mixed $value, Closure $fail) {
-                    // @todo check multiple ISBNs.
                     if ($value !== null && !in_array(strlen((string) $value), [10, 13])) {
                         $fail("The $attribute should be either absent or contain exactly 10 or 13 digits.");
                     }

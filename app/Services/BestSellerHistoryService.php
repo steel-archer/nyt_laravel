@@ -2,10 +2,8 @@
 
 namespace App\Services;
 
-use DomainException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
-use RuntimeException;
 
 class BestSellerHistoryService
 {
@@ -29,7 +27,7 @@ class BestSellerHistoryService
         int $version,
     ): array {
         if (empty($this->apiHost) || empty($this->apiKey)) {
-            throw new RuntimeException('You must set an API host and key.');
+            return ['errors' => 'You must set an API host and key.'];
         }
 
         try {
@@ -50,7 +48,6 @@ class BestSellerHistoryService
             if (!empty($isbn)) {
                 $params['isbn'] = $isbn;
                 $rawUri .= self::URI_ISBN_PART;
-                // @todo check what's wrong with multiple ISBNs.
             }
 
             $rawResponse = Http::withUrlParameters($params)->get($rawUri);
@@ -61,7 +58,7 @@ class BestSellerHistoryService
         $response = $rawResponse->json();
 
         if (empty($response)) {
-            return ['errors' => "Empty response."];
+            return ['errors' => 'Empty response.'];
         }
 
         if (!empty($response['fault'])) {
