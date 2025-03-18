@@ -2,10 +2,13 @@
 
 namespace Tests\Unit\BestSellerHistory;
 
+use App\Services\BestSellerHistoryService;
+use Exception;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\Exception as MockException;
 use Tests\TestCase;
 
 class BestSellerHistoryTest extends TestCase
@@ -144,5 +147,25 @@ class BestSellerHistoryTest extends TestCase
         yield [['isbn' => 10], ['isbn' => ['The isbn should be either absent or contain exactly 10 or 13 digits.']]];
         yield [['offset' => 10], ['offset' => ['The offset must be a multiple of 20.']]];
         yield [['offset' => 'aa'], ['offset' => ['The offset field must be an integer.']]];
+    }
+
+    /**
+     * @throws JsonException
+     * @throws MockException
+     */
+    public function testException(): void
+    {
+        $mockService = $this->createMock(BestSellerHistoryService::class);
+        $mockService->method('search')->willThrowException(new Exception('Unknown error'));
+        $this->app->instance(BestSellerHistoryService::class, $mockService);
+
+        $params['version'] = 3;
+        $response = $this->get(route('api.best-seller-history.search', $params));
+
+        self::assertEquals(500, $response->status());
+
+        $errors = ['errors' => ['Unknown error']];
+
+        self::assertJsonStringEqualsJsonString(json_encode($errors, JSON_THROW_ON_ERROR), $response->getContent());
     }
 }
