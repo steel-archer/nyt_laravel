@@ -23,7 +23,7 @@ abstract class AbstractNytApiService
             return ['errors' => ['Empty response.']];
         }
 
-        if (!empty($response['fault'])) {
+        if (!empty($response['fault']['faultstring'])) {
             return ['errors' => [$response['fault']['faultstring']]];
         }
 
