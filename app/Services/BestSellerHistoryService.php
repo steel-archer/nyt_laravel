@@ -75,16 +75,8 @@ class BestSellerHistoryService
             return ['errors' => $response['errors']];
         }
 
-        if ($version === 1) {
-            return [
-                'results' => $response['body'],
-                'numResults' => $response['headers']['num_results'],
-            ];
-        }
+        $response['version'] = $version;
 
-        return [
-            'results' => $response['results'],
-            'numResults' => $response['num_results'],
-        ];
+        return $response;
     }
 }
