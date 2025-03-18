@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class BestSellerHistoryService extends AbstractNytApiService
@@ -41,11 +42,29 @@ class BestSellerHistoryService extends AbstractNytApiService
                 $rawUri .= self::URI_ISBN_PART;
             }
 
-            $rawResponse = Http::withUrlParameters($params)->get($rawUri);
+            $response = Cache::remember(
+                $this->getCacheKey($params),
+                3600,
+                static function() use ($params, $rawUri) {
+                    return Http::withUrlParameters($params)->get($rawUri)->json();
+            });
         } catch (ConnectionException) {
             return ['errors' => ['Connection exception.']];
         }
 
-        return $this->processResult($rawResponse, $version);
+        return $this->processResult($response, $version);
+    }
+
+    protected function getCacheKey(array $params): string
+    {
+        $result = '';
+        foreach ($params as $key => $value) {
+            if (in_array($key, ['endpoint', 'apiKey'], true)) {
+                continue;
+            }
+            $result .= "$key=$value;";
+        }
+
+        return $result;
     }
 }

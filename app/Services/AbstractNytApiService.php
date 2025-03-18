@@ -15,10 +15,8 @@ abstract class AbstractNytApiService
         $this->apiKey = config('services.nyt_api_key', '');
     }
 
-    protected function processResult(Response $rawResponse, int $version): array
+    protected function processResult(mixed $response, int $version): array
     {
-        $response = $rawResponse->json();
-
         if (empty($response)) {
             return ['errors' => ['Empty response.']];
         }
