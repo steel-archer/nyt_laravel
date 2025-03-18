@@ -7,15 +7,9 @@ use Closure;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
-
-class BestSellerHistoryController extends Controller
+class BestSellerHistoryController extends AbstractNytApiController
 {
-    protected const DEFAULT_VERSION = 3;
-    protected const ERROR_CODE_VALIDATION = 422;
-    protected const ERROR_CODE_UNKNOWN = 500;
-
     public function __construct(
         protected BestSellerHistoryService $bestSellerHistoryService,
     ) {
@@ -23,13 +17,8 @@ class BestSellerHistoryController extends Controller
 
     public function search(Request $request): JsonResponse
     {
-        $validator = Validator::make(
-            $request->all(),
-            $this->getValidationRules(),
-        );
-
-        if ($validator->fails()) {
-            $errors = $validator->errors(); // Get the errors
+        $errors = $this->validate($request);
+        if (!empty($errors->messages())) {
             return response()->json(['errors' => $errors], self::ERROR_CODE_VALIDATION);
         }
 
@@ -45,16 +34,7 @@ class BestSellerHistoryController extends Controller
             return response()->json(['errors' => [$ex->getMessage()]], self::ERROR_CODE_UNKNOWN);
         }
 
-        $history = array_merge(
-            [
-                'results' => [],
-                'numResults' => 0,
-                'errors' => [],
-            ],
-            $searchResults,
-        );
-
-        return response()->json($history);
+        return response()->json($searchResults);
     }
 
     protected function getValidationRules(): array
