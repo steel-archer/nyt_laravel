@@ -38,7 +38,7 @@ class BestSellerHistoryTest extends TestCase
             $endpoint => Http::response(),
         ]);
 
-        $response = $this->get(route('api.best-seller-history.search', []));
+        $response = $this->get(route('api.best-seller-history.search'));
 
         self::assertEquals(500, $response->status());
 
@@ -123,5 +123,26 @@ class BestSellerHistoryTest extends TestCase
                 : file_get_contents(self::EMPTY_RESPONSE_FILE);
             yield [$params, $content];
         }
+    }
+
+    /**
+     * @throws JsonException
+     */
+    #[DataProvider('validationErrorsDataProvider')]
+    public function testValidationErrors(array $params, array $errors): void
+    {
+        $params['version'] = 3;
+        $response = $this->get(route('api.best-seller-history.search', $params));
+
+        self::assertEquals(422, $response->status());
+
+        self::assertJsonStringEqualsJsonString(json_encode(['errors' => $errors], JSON_THROW_ON_ERROR), $response->getContent());
+    }
+
+    public static function validationErrorsDataProvider(): iterable
+    {
+        yield [['isbn' => 10], ['isbn' => ['The isbn should be either absent or contain exactly 10 or 13 digits.']]];
+        yield [['offset' => 10], ['offset' => ['The offset must be a multiple of 20.']]];
+        yield [['offset' => 'aa'], ['offset' => ['The offset field must be an integer.']]];
     }
 }

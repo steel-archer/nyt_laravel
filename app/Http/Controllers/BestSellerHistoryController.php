@@ -60,6 +60,7 @@ class BestSellerHistoryController extends AbstractNytApiController
             ],
             'title' => 'string|nullable',
             'offset' => [
+                'bail',
                 'integer',
                 'nullable',
                 function (string $attribute, mixed $value, Closure $fail) {
