@@ -9,6 +9,7 @@ use Illuminate\Support\MessageBag;
 abstract class AbstractNytApiController extends Controller
 {
     protected const DEFAULT_VERSION = 3;
+    protected const SUCCESS_CODE = 200;
     protected const ERROR_CODE_VALIDATION = 422;
     protected const ERROR_CODE_UNKNOWN = 500;
 

@@ -28,6 +28,22 @@ class BestSellerHistoryTest extends TestCase
         $this->apiEndpoint = $this->apiHost . "/svc/books/v%d/lists/best-sellers/history.json?api-key=$this->apiKey*";
     }
 
+    public function testNoApiKey(): void
+    {
+        Config::set('services.nyt_api_key', '');
+        $endpoint = sprintf($this->apiEndpoint, 3);
+        Http::fake([
+            $endpoint => Http::response(),
+        ]);
+
+        $response = $this->get(route('api.best-seller-history.search', []));
+
+        self::assertEquals(500, $response->status());
+
+        $json = '{"errors":"You must set an API host and key."}';
+        self::assertJsonStringEqualsJsonString($json, $response->getContent());
+    }
+
     /**
      * @throws JsonException
      */
@@ -40,12 +56,7 @@ class BestSellerHistoryTest extends TestCase
             $endpoint => Http::response($json),
         ]);
 
-        $response = $this->get(
-            route(
-                'api.best-seller-history.search',
-                $params,
-            ),
-        );
+        $response = $this->get(route('api.best-seller-history.search', $params));
 
         self::assertEquals(200, $response->status());
 
@@ -59,22 +70,49 @@ class BestSellerHistoryTest extends TestCase
 
     public static function correctDataProvider(): iterable
     {
-        for ($version = 0; $version <=3; $version++) {
-            // No version (so 3).
-            if ($version === 0) {
-                $params = [];
-                yield [$params, file_get_contents(self::CORRECT_RESPONSE_FILE)];
+        for ($version = 0; $version <= 3; $version++) {
+            if ($version === 0) { // No version (so 3).
+                $basicParams = [];
+                $content = file_get_contents(self::CORRECT_RESPONSE_FILE);
             } elseif ($version === 1) {
-                $params = [
-                    'version' => 1,
-                ];
-                yield [$params, file_get_contents(self::CORRECT_RESPONSE_FILE_V1)];
+                $basicParams = ['version' => 1];
+                $content = file_get_contents(self::CORRECT_RESPONSE_FILE_V1);
             } else {
-                $params = [
-                    'version' => $version,
-                ];
-                yield [$params, file_get_contents(self::CORRECT_RESPONSE_FILE)];
+                $basicParams = ['version' => $version];
+                $content = file_get_contents(self::CORRECT_RESPONSE_FILE);
             }
+
+            // Author
+            $params = $basicParams;
+            $params['author'] = '';
+            yield [$params, $content];
+
+            $params = $basicParams;
+            $params['author'] = 'George R.R. Martin';
+            yield [$params, $content];
+
+            // Title
+            $params = $basicParams;
+            $params['title'] = '';
+            yield [$params, $content];
+
+            $params = $basicParams;
+            $params['title'] = 'FIRE AND BLOOD';
+            yield [$params, $content];
+
+            // ISBN
+            $params = $basicParams;
+            $params['isbn'] = 1524796298;
+            yield [$params, $content];
+
+            $params = $basicParams;
+            $params['isbn'] = 9781524796297;
+            yield [$params, $content];
+
+            // Offset
+            $params = $basicParams;
+            $params['offset'] = 0;
+            yield [$params, $content];
         }
     }
 }

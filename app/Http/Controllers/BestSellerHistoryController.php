@@ -23,18 +23,20 @@ class BestSellerHistoryController extends AbstractNytApiController
         }
 
         try {
+            // Do ?? if null has benn passed.
             $searchResults = $this->bestSellerHistoryService->search(
-                $request->get('author', ''),
-                $request->get('isbn', 0),
-                $request->get('title', ''),
-                $request->get('offset', 0),
-                $request->get('version', self::DEFAULT_VERSION),
+                $request->get('author', '') ?? '',
+                $request->get('isbn', 0) ?? 0,
+                $request->get('title', '') ?? '',
+                $request->get('offset', 0) ?? 0,
+                $request->get('version', self::DEFAULT_VERSION) ?? self::DEFAULT_VERSION,
             );
         } catch (Exception $ex) {
             return response()->json(['errors' => [$ex->getMessage()]], self::ERROR_CODE_UNKNOWN);
         }
 
-        return response()->json($searchResults);
+        $code = empty($searchResults['errors']) ? self::SUCCESS_CODE : self::ERROR_CODE_UNKNOWN;
+        return response()->json($searchResults, $code);
     }
 
     protected function getValidationRules(): array
