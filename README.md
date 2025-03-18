@@ -1,66 +1,38 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+**Test task**
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**Note:**
+* Laravel Sail was used to create the app skeleton.
+* Although the NYT API documentation states that the `isbn` parameter can accept multiple ISBNs, it doesn't work for me (it simply returns no records). Therefore, I made this parameter a regular integer.
 
-## About Laravel
+**Additional Implemented Features:**
+* `consider API versioning`: Added a version parameter that can be 1, 2, or 3. The version value is also included in the output. The response structure varies by version (although versions 2 and 3 appear to be identical).
+* `caching`: File-based caching is used. NYT API call results are cached to speed up repeated requests. However, caching is disabled in tests.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**How to Set Up the Environment:**
+* `git clone git@github.com:steel-archer/nyt_laravel.git laravel_nyt`
+* `cd nyt_laravel2`
+* Set your API key in the file `.env` (`NYT_API_KEY` variable).
+* `docker compose up -d`
+* `docker compose exec laravel.test composer install`
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**Environment Notes (Possible Issue and Solution):**
+Occasionally, localhost may not function correctly. Here’s what works for me:
+* `sudo lsof -i :8989`
+* There can be multiple listeners of port `8989` used by app. Example output:
+* `COMMAND      PID USER   FD   TYPE  DEVICE SIZE/OFF NODE NAME`
+* `docker-pr 297440 root    7u  IPv4 3818230      0t0  TCP *:8989 (LISTEN)`
+* `docker-pr 297447 root    7u  IPv6 3818231      0t0  TCP *:8989 (LISTEN)`
+* Run the following commands to resolve the issue (replace `pids` with your actual process IDs):
+* `sudo kill -9 297440 297447`
+* `docker compose down --remove-orphans`
+* `docker compose up -d`
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**How to Use the App:**
+* Open http://localhost:8989/api/1/best-seller-history in your browser (you can also add parameters to the URL).
 
-## Learning Laravel
+**How to Run Tests:**
+`docker compose exec laravel.test php artisan test --coverage`
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Potential Improvements:**
+* CI/CD Pipelines via GitHub Actions – We can run tests on push and fail the build if any tests fail or if code coverage is insufficient.
+* Request Timeout Handling – To enforce time constraints, we could integrate a library like ReactPHP to ensure requests fail if they exceed a predefined time limit.
