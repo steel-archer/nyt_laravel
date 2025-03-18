@@ -234,4 +234,52 @@ class BestSellerHistoryTest extends TestCase
 
         self::assertJsonStringEqualsJsonString(json_encode($errors, JSON_THROW_ON_ERROR), $response->getContent());
     }
+
+    /**
+     * @throws JsonException
+     */
+    public function testResponseErrors(): void
+    {
+        $params['version'] = 3;
+        $endpoint = sprintf($this->apiEndpoint, 3);
+        Http::fake([
+            $endpoint => function () {
+                $jsonArray = [
+                    'errors' => ['Some error.'],
+                ];
+                return Http::response(json_encode($jsonArray, JSON_THROW_ON_ERROR));
+            }
+        ]);
+
+        $response = $this->get(route('api.best-seller-history.search', $params));
+
+        $errors = ['errors' => ['Some error.']];
+
+        self::assertJsonStringEqualsJsonString(json_encode($errors, JSON_THROW_ON_ERROR), $response->getContent());
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function testResponseErrorsV1(): void
+    {
+        $params['version'] = 1;
+        $endpoint = sprintf($this->apiEndpoint, 1);
+        Http::fake([
+            $endpoint => function () {
+                $jsonArray = [
+                    'headers' => [
+                        'errors' => ['Some error.'],
+                    ],
+                ];
+                return Http::response(json_encode($jsonArray, JSON_THROW_ON_ERROR));
+            }
+        ]);
+
+        $response = $this->get(route('api.best-seller-history.search', $params));
+
+        $errors = ['errors' => ['Some error.']];
+
+        self::assertJsonStringEqualsJsonString(json_encode($errors, JSON_THROW_ON_ERROR), $response->getContent());
+    }
 }
