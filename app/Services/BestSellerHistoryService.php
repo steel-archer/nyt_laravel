@@ -43,7 +43,7 @@ class BestSellerHistoryService extends AbstractNytApiService
 
             $rawResponse = Http::withUrlParameters($params)->get($rawUri);
         } catch (ConnectionException) {
-            return ['errors' => "Connection exception."];
+            return ['errors' => ['Connection exception.']];
         }
 
         return $this->processResult($rawResponse, $version);

@@ -4,6 +4,7 @@ namespace Tests\Unit\BestSellerHistory;
 
 use App\Services\BestSellerHistoryService;
 use Exception;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use JsonException;
@@ -153,7 +154,7 @@ class BestSellerHistoryTest extends TestCase
      * @throws JsonException
      * @throws MockException
      */
-    public function testException(): void
+    public function testGeneralException(): void
     {
         $mockService = $this->createMock(BestSellerHistoryService::class);
         $mockService->method('search')->willThrowException(new Exception('Unknown error'));
@@ -165,6 +166,23 @@ class BestSellerHistoryTest extends TestCase
         self::assertEquals(500, $response->status());
 
         $errors = ['errors' => ['Unknown error']];
+
+        self::assertJsonStringEqualsJsonString(json_encode($errors, JSON_THROW_ON_ERROR), $response->getContent());
+    }
+
+    public function testConnectionException()
+    {
+        $params['version'] = 3;
+        $endpoint = sprintf($this->apiEndpoint, 3);
+        Http::fake([
+            $endpoint => function () {
+                throw new ConnectionException();
+            }
+        ]);
+
+        $response = $this->get(route('api.best-seller-history.search', $params));
+
+        $errors = ['errors' => ['Connection exception.']];
 
         self::assertJsonStringEqualsJsonString(json_encode($errors, JSON_THROW_ON_ERROR), $response->getContent());
     }
