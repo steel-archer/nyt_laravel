@@ -23,7 +23,7 @@ class BestSellerHistoryController extends AbstractNytApiController
         }
 
         try {
-            // Do ?? if null has benn passed.
+            // Do ?? if null has been passed.
             $searchResults = $this->bestSellerHistoryService->search(
                 $request->get('author', '') ?? '',
                 $request->get('isbn', 0) ?? 0,

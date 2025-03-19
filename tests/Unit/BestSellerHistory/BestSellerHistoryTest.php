@@ -22,14 +22,14 @@ class BestSellerHistoryTest extends TestCase
     protected string $apiHost = '';
     protected string $apiKey = '';
     protected string $apiEndpoint = '';
-    protected string $ourEndpoint = 'http://localhost/api/%d/best-seller-history';
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->apiHost = config('services.nyt_api_host', '');
+        $this->apiHost = 'dummy_api_host';
         $this->apiKey = 'dummy_api_key';
+        Config::set('services.nyt_api_host', $this->apiHost);
         Config::set('services.nyt_api_key', $this->apiKey);
         $this->apiEndpoint = $this->apiHost . "/svc/books/v%d/lists/best-sellers/history.json?api-key=$this->apiKey*";
     }
