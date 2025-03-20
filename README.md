@@ -36,3 +36,5 @@ Occasionally, localhost may not function correctly. Here’s what works for me:
 **Potential Improvements:**
 * CI/CD Pipelines via GitHub Actions – We can run tests on push and fail the build if any tests fail or if code coverage is insufficient.
 * Request Timeout Handling – To enforce time constraints, we could integrate a library like ReactPHP to ensure requests fail if they exceed a predefined time limit.
+* Caching - Replace file storage with more appropriate, like Redis or Memcached.
+* Cache records keys generation - Re-order params before key creation so there won't be a situation when there are keys `author=Foo;title=Bar` and `title=Bar;author=Foo` which refer to the same data.
